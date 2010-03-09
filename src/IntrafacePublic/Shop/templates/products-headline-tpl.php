@@ -1,0 +1,1 @@
+<h1><?php e(__('All products')); ?></h1>
