@@ -22,10 +22,12 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
     */
 
     protected $shop;
+    protected $template;
 
-    function __construct(IntrafacePublic_Shop $shop)
+    function __construct(IntrafacePublic_Shop $shop, k_TemplateFactory $template)
     {
         $this->shop = $shop;
+        $this->template = $template;
     }
 
     /**
@@ -123,7 +125,7 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
         $this->currency['default'] = $currency;
     }
 
-    function GET()
+    function renderHtml()
     {
         if(isset($this->GET['update_all'])) {
             $this->getShop()->clearCache();
@@ -137,14 +139,18 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
         $this->document->setTitle($this->t('Featured products'));
 
         $html = '';
+
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/products-featured');
+
         foreach ($result as $featured) {
             $data = array('products' => $featured['products'],
                           'headline' => $featured['title'],
                           'currency' => $this->getCurrency());
-            $html .= $this->render('IntrafacePublic/Shop/templates/products-featured-tpl.php', $data);
+            $html .= $tpl->render($this, $data);
         }
 
-        return $this->render('IntrafacePublic/Shop/templates/frontpage-tpl.php', array('content' => $html));
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/frontpage');
+        return $tpl->render($this, array('content' => $html));
     }
 
     function forward($name)

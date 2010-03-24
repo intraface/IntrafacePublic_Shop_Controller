@@ -4,140 +4,60 @@ require_once 'konstrukt/konstrukt.inc.php';
 require_once 'bucket.inc.php';
 require_once 'Ilib/ClassLoader.php';
 
-class Intraface_LanguageLoader implements k_LanguageLoader {
-    // @todo The language will often not be set on runtime, e.g. an
-    //       intranet where the user can chose him or her own language?
-    //       How could one accommodate for this?
-    function load(k_Context $context)
-    {
-        $supported = array("da" => true, "en-US" => true);
-
-        if ($context->identity()->anonymous()) {
-            $language = HTTP::negotiateLanguage($supported);
-            if (PEAR::isError($language)) {
-                // fallback language in case of unable to negotiate
-                return new DanishLanguage();
-            }
-
-            if ($language == 'da') {
-                return new DanishLanguage();
-            }
-
-        } elseif ($context->identity()->language() == 'da') {
-            return new DanishLanguage();
-        }
-
-        // @todo at the moment the system does not take the
-        //       settings in the system into account - only
-        //       the way the browser is setup.
-        $language = HTTP::negotiateLanguage($supported);
-        if (PEAR::isError($language)) {
-            // fallback language in case of unable to negotiate
-            return new DanishLanguage();
-        }
-
-        if ($language == 'da') {
-            return new DanishLanguage();
-        }
-
-        // fallback language
-        return new EnglishLanguage();
-    }
+class EnglishLanguage implements k_Language {
+  function name() {
+    return 'English';
+  }
+  function isoCode() {
+    return 'en';
+  }
 }
 
-class k_Translation2Translator implements k_Translator
-{
-    protected $translation2;
-    protected $page_id;
-    protected $page;
-
-    function __construct($lang, $page_id = NULL)
-    {
-        $factory = new Intraface_Factory;
-        $cache = $factory->new_Translation2_Cache();
-
-        if($page_id == NULL) {
-            $cache_key = 'common';
-        } else {
-            $cache_key = $page_id;
-        }
-
-        if($data = $cache->get($cache_key, 'translation-'.$lang)) {
-            $this->page = unserialize($data);
-        } else {
-            $translation2 = $factory->new_Translation2();
-            $res = $translation2->setLang($lang);
-            if (PEAR::isError($res)) {
-                throw new Exception('Could not setLang()');
-            }
-
-            $this->page = $translation2->getPage('common');
-            if($page_id != NULL) {
-                $this->page = array_merge($this->page, $translation2->getPage($page_id));
-            }
-
-            $cache->save(serialize($this->page), $cache_key, 'translation-'.$lang);
-        }
-
-        $this->page_id = $page_id;
-        $this->lang = $lang;
-    }
-
-    function translate($phrase, k_Language $language = null)
-    {
-        /*
-        $lang = $this->translation2->getLang();
-        if (PEAR::isError($lang)) {
-            $res = $this->translation2->setLang($language->isoCode());
-        }
-        */
-        /*
-        if ($this->page_id !== null) {
-            if ($phrase != $this->translation2->get($phrase, $this->page_id)) {
-                return utf8_encode($this->translation2->get($phrase, $this->page_id));
-            }
-        }
-
-        return utf8_encode($this->translation2->get($phrase, 'common'));
-        */
-
-        if(isset($this->page[$phrase])) {
-            return utf8_encode($this->page[$phrase]);
-        }
-
-        $logger = new ErrorHandler_Observer_File(ERROR_LOG);
-        $details = array(
-                'date' => date('r'),
-                'type' => 'Translation2',
-                'message' => 'Missing translation for "'.$phrase.'" on pageID: "'.$this->page_id.'", LangID: "'.$this->lang.'"',
-                'file' => '[unknown]',
-                'line' => '[unknown]'
-            );
-
-        $logger->update($details);
-
-        return $phrase;
-
-    }
-
-    public function get($phrase)
-    {
-        return $this->translate($phrase);
-    }
+class SwedishLanguage implements k_Language {
+  function name() {
+    return 'Swedish';
+  }
+  function isoCode() {
+    return 'sv';
+  }
 }
 
-class Intraface_TranslatorLoader implements k_TranslatorLoader
-{
-    function load(k_Context $context)
-    {
-        $subspace = explode('/', $context->subspace());
-        if (count($subspace) > 3 && $subspace[1] == 'restricted' && $subspace[2] == 'module' && !empty($subspace[3])) {
-            $module = $subspace[3];
-        } else {
-            $module = NULL;
-        }
-        return new k_Translation2Translator($context->language()->isoCode(), $module);
+class MyLanguageLoader implements k_LanguageLoader {
+  function load(k_Context $context) {
+    if($context->query('lang') == 'sv') {
+      return new SwedishLanguage();
+    } else if($context->query('lang') == 'en') {
+      return new EnglishLanguage();
     }
+    return new EnglishLanguage();
+  }
+}
+
+class SimpleTranslator implements k_Translator {
+  protected $phrases;
+  function __construct($phrases = array()) {
+    $this->phrases = $phrases;
+  }
+  function translate($phrase, k_Language $language = null) {
+    return isset($this->phrases[$phrase]) ? $this->phrases[$phrase] : $phrase;
+  }
+}
+
+class SimpleTranslatorLoader implements k_TranslatorLoader {
+  function load(k_Context $context) {
+    // Default to English
+    $phrases = array(
+      'Hello' => 'Hello',
+      'Meatballs' => 'Meatballs',
+    );
+    if($context->language()->isoCode() == 'sv') {
+      $phrases = array(
+        'Hello' => 'Bork, bork, bork!',
+        'Meatballs' => 'Swedish meatballs',
+      );
+    }
+    return new SimpleTranslator($phrases);
+  }
 }
 
 class Intraface_TemplateFactory extends k_DefaultTemplateFactory
@@ -211,6 +131,11 @@ class Factory
        return new Cache_Lite($options);
 
     }
+
+    function new_k_TemplateFactory()
+    {
+        return new Intraface_TemplateFactory(dirname(__FILE__) . '/../../src/IntrafacePublic/Shop/templates/');
+    }
 }
 
 $bucket = new bucket_Container(new Factory);
@@ -226,6 +151,7 @@ if (realpath($_SERVER['SCRIPT_FILENAME']) == __FILE__) {
         // Uncomment the next line to enable in-browser debugging
         //->setDebug(K2_DEBUG)
         // Dispatch request
+        ->setLanguageLoader(new MyLanguageLoader())->setTranslatorLoader(new SimpleTranslatorLoader())
         //->setIdentityLoader(new Intraface_IdentityLoader())
         //->setLanguageLoader(new Intraface_LanguageLoader())
         //->setTranslatorLoader(new Intraface_TranslatorLoader())

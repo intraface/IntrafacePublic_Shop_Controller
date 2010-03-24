@@ -28,13 +28,13 @@ $only_show_products_with_pictures = 1;
         <?php e($currency); ?> <?php $price = new Ilib_Variable_Float($product['currency'][$currency]['price_incl_vat']); e($price->getAsLocal($this->document->locale, 2)); ?>
         <div class="buy">
             <?php if ($product['has_variation']): ?>
-                <a class="details" href="<?php e($this->url('product/' .$product['id'])); ?>"><?php e(__('Details')); ?></a>
+                <a class="details" href="<?php e($this->url('product/' .$product['id'])); ?>"><?php e(t('Details')); ?></a>
             <?php elseif ($product['stock'] == 0 || $product['stock_status']['for_sale'] > 0): ?>
                 <form method="POST" class="buy" action="<?php e(url('product/' . $product['id'] . '/add')); ?>">
-                    <input type="submit" class="buy" name="add_product" value="<?php e(__('Buy')); ?>" />
+                    <input type="submit" class="buy" name="add_product" value="<?php e(t('Buy')); ?>" />
                 </form>
             <?php else: ?>
-                <?php e(__('Not in stock')); ?>
+                <?php e(t('Not in stock')); ?>
             <?php endif; ?>
         </div>
     </div>
