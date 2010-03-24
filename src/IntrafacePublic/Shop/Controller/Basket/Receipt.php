@@ -1,13 +1,13 @@
 <?php
-class IntrafacePublic_Shop_Controller_Basket_Receipt extends k_Controller
+class IntrafacePublic_Shop_Controller_Basket_Receipt extends k_Component
 {
     private $error = array();
-    
+
     function getErrors()
     {
         return $this->error;
     }
-    
+
     function __construct($context, $name)
     {
         parent::__construct($context, $name);
@@ -22,7 +22,7 @@ class IntrafacePublic_Shop_Controller_Basket_Receipt extends k_Controller
         $this->document->keywords = '';
 
         $text = $this->context->getShop()->getReceiptText();
-        
+
         return $this->render('IntrafacePublic/Shop/templates/receipt-tpl.php', array('text' => $text));
 
     }

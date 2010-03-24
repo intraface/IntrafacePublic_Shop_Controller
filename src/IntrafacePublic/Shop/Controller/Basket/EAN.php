@@ -1,5 +1,5 @@
 <?php
-class IntrafacePublic_Shop_Controller_Basket_EAN extends k_Controller
+class IntrafacePublic_Shop_Controller_Basket_EAN extends k_Component
 {
     protected $error_message = array();
 

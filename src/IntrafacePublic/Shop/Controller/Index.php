@@ -1,5 +1,5 @@
 <?php
-class IntrafacePublic_Shop_Controller_Index extends k_Controller
+class IntrafacePublic_Shop_Controller_Index extends k_Component
 {
     public $map = array('products' => 'IntrafacePublic_Shop_Controller_Products',
                         'product' => 'IntrafacePublic_Shop_Controller_Product',
@@ -10,28 +10,37 @@ class IntrafacePublic_Shop_Controller_Index extends k_Controller
     private $categories;
     private $currency;
 
+    /*
     public function __construct($context, $name)
     {
         parent::__construct($context, $name);
         $this->document->menu = $this->render('IntrafacePublic/Shop/templates/menu-categories-tpl.php', array('url_root' => $this->url('.'), 'categories' => $this->getCategories()));
-        
+
         # We set locale to en_US as default.
         if(empty($this->document->locale)) $this->document->locale = 'en_US';
+    }
+    */
+
+    protected $shop;
+
+    function __construct(IntrafacePublic_Shop $shop)
+    {
+        $this->shop = $shop;
     }
 
     /**
      * Returns IntrafacePublic_Shop
-     * 
+     *
      * @return object IntrafacePublic_Shop
      */
     public function getShop()
     {
-        return $this->context->getShop();
+        return $this->shop;
     }
-    
+
     /**
      * Returns IntrafacePublic_Onlinepayment
-     * 
+     *
      * @return object IntrafacePublic_Onlinepayment
      */
     public function getOnlinePayment()
@@ -41,10 +50,10 @@ class IntrafacePublic_Shop_Controller_Index extends k_Controller
         }
         return false;
     }
-    
+
     /**
      * Returns Ilib_Payment_Authorize
-     * 
+     *
      * @return object Ilib_Payment_Authorize
      */
     public function getOnlinePaymentAuthorize()
@@ -92,7 +101,7 @@ class IntrafacePublic_Shop_Controller_Index extends k_Controller
         }
         return array();
     }
-    
+
     function getBreadcrumpTrailPageTitles()
     {
         if(is_callable(array($this->context, 'getBreadcrumpTrailPageTitles'))) {
@@ -119,13 +128,13 @@ class IntrafacePublic_Shop_Controller_Index extends k_Controller
         if(isset($this->GET['update_all'])) {
             $this->getShop()->clearCache();
         }
-        
+
         if(isset($this->GET['update'])) {
             $this->getShop()->clearFeaturedProductsCache();
         }
         $result = $this->getShop()->getFeaturedProducts();
 
-        $this->document->title = $this->__('Featured products');
+        $this->document->setTitle($this->t('Featured products'));
 
         $html = '';
         foreach ($result as $featured) {

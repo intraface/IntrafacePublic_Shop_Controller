@@ -1,11 +1,10 @@
 <?php
-class IntrafacePublic_Shop_Controller_Product_Variation_Add extends k_Controller
+class IntrafacePublic_Shop_Controller_Product_Variation_Add extends k_Component
 {
     function POST()
     {
-        
         $result = $this->context->context->getShop()->getProduct($this->context->context->name);
-    
+
         if (is_array($result['variations'])) {
             $variation = false;
             foreach ($result['variations'] AS $variation) {
