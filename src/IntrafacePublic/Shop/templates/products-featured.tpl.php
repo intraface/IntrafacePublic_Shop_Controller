@@ -25,10 +25,10 @@ $only_show_products_with_pictures = 1;
         <?php else: ?>
             <?php e($product['name']); ?>
         <?php endif; ?>
-        <?php e($currency); ?> <?php $price = new Ilib_Variable_Float($product['currency'][$currency]['price_incl_vat']); e($price->getAsLocal($this->document->locale, 2)); ?>
+        <?php e($currency); ?> <?php $price = new Ilib_Variable_Float($product['currency'][$currency]['price_incl_vat']); e($price->getAsLocal($context->document->locale(), 2)); ?>
         <div class="buy">
             <?php if ($product['has_variation']): ?>
-                <a class="details" href="<?php e($this->url('product/' .$product['id'])); ?>"><?php e(t('Details')); ?></a>
+                <a class="details" href="<?php e(url('product/' .$product['id'])); ?>"><?php e(t('Details')); ?></a>
             <?php elseif ($product['stock'] == 0 || $product['stock_status']['for_sale'] > 0): ?>
                 <form method="POST" class="buy" action="<?php e(url('product/' . $product['id'] . '/add')); ?>">
                     <input type="submit" class="buy" name="add_product" value="<?php e(t('Buy')); ?>" />

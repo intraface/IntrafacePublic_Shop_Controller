@@ -2,7 +2,7 @@
 
 <ul id="category-categories">
     <?php foreach($categories as $category): ?>
-        <li><a href="<?php e($this->url('./'.$category['identifier'])); ?>"><?php e($category['name']); ?></a></li>
+        <li><a href="<?php e(url('./'.$category['identifier'])); ?>"><?php e($category['name']); ?></a></li>
     <?php endforeach; ?>
 </ul>
 <div style="clear:both;"></div>

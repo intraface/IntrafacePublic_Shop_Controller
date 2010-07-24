@@ -4,7 +4,7 @@
         <?php if ((empty($this->GET['start']) && $paging == 0) || (!empty($this->GET['start']) && $this->GET['start'] == $paging)): ?>
             | <strong><?php e($key + 1); ?></strong>
         <?php else: ?>
-            | <a href="<?php e($this->url('.', array('start' => $paging))); ?>"><?php e($key + 1); ?></a>
+            | <a href="<?php e(url('.', array('start' => $paging))); ?>"><?php e($key + 1); ?></a>
         <?php endif; ?>
     <?php endforeach; ?>
     |</p>
