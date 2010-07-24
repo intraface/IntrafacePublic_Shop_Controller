@@ -1,18 +1,18 @@
     <table id="basket">
-        <caption><?php e(__('Products')); ?></caption>
+        <caption><?php e(t('Products')); ?></caption>
         <thead>
             <tr>
                 <th></th>
-                <th><?php e(__('Name')); ?></th>
-                <th><?php e(__('Quantity')); ?></th>
-                <th><?php e(__('Amount')); ?></th>
+                <th><?php e(t('Name')); ?></th>
+                <th><?php e(t('Quantity')); ?></th>
+                <th><?php e(t('Amount')); ?></th>
             </tr>
         </thead>
         <tfoot>
             <tr>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
-                <td class="total"><strong><?php e(__('Total')); ?></strong></td>
+                <td class="total"><strong><?php e(t('Total')); ?></strong></td>
                 <td class="total" style="text-align: right;"><?php e($currency); ?> <?php $total_price_incl_vat = new Ilib_Variable_Float($total_price[$currency]['incl_vat']); e($total_price_incl_vat->getAsLocal($this->document->locale, 2)); ?></td>
             </tr>
         </tfoot>

@@ -1,1 +1,1 @@
-<h1><?php e(__('All products')); ?></h1>
+<h1><?php e(t('All products')); ?></h1>

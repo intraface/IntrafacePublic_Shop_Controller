@@ -1,1 +1,1 @@
-<div class="product-message"><?php e(__($message)); ?></div>
+<div class="product-message"><?php e(t($message)); ?></div>

@@ -1,18 +1,18 @@
 <form action="<?php e(url('./')); ?>" method="post" id="cartform">
     <table id="basket">
-        <caption><?php e(__('Basket (including vat)')); ?></caption>
+        <caption><?php e(t('Basket (including vat)')); ?></caption>
         <thead>
             <tr>
                 <th></th>
-                <th><?php e(__('Name')); ?></th>
-                <th><?php e(__('Quantity')); ?></th>
-                <th><?php e(__('Amount')); ?></th>
+                <th><?php e(t('Name')); ?></th>
+                <th><?php e(t('Quantity')); ?></th>
+                <th><?php e(t('Amount')); ?></th>
             </tr>
         </thead>
         <tfoot>
             <tr>
-                <td class="help" colspan="2"><?php e(__('You can change the quantity of the products by writing a new quantity and update the basket.')); ?></td>
-                <td class="total"><strong><?php e(__('Total')); ?></strong></td>
+                <td class="help" colspan="2"><?php e(t('You can change the quantity of the products by writing a new quantity and update the basket.')); ?></td>
+                <td class="total"><strong><?php e(t('Total')); ?></strong></td>
                 <td class="total" style="text-align: right;"><?php e($currency); ?> <?php $total_price = new Ilib_Variable_Float($total_price[$currency]['incl_vat']); e($total_price->getAsLocal($this->document->locale, 2)); ?></td>
             </tr>
         </tfoot>
@@ -45,11 +45,11 @@
 </table>
 
 <p>
-    <input name="update" value="<?php e(__('Update basket')); ?>" type="submit" />
+    <input name="update" value="<?php e(t('Update basket')); ?>" type="submit" />
 </p>
 
 <p>
-    <a href="<?php e(url('../')); ?>"><?php e(__('Continue shopping')); ?></a>
-    <a class="buy" href="<?php e(url('details')); ?>"><?php e(__('Checkout')); ?></a>
+    <a href="<?php e(url('../')); ?>"><?php e(t('Continue shopping')); ?></a>
+    <a class="buy" href="<?php e(url('details')); ?>"><?php e(t('Checkout')); ?></a>
 </p>
 </form>

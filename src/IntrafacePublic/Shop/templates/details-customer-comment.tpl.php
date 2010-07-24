@@ -1,7 +1,7 @@
 
 <fieldset id="details-customer-comment" class="details-customer">
-    <legend><?php e(__('Comments')); ?></legend>
+    <legend><?php e(t('Comments')); ?></legend>
 
-    <?php e(__('Your comments')); ?>:<br/>
+    <?php e(t('Your comments')); ?>:<br/>
     <textarea name="customer_comment"><?php if(isset($customer_comment)) e($customer_comment); ?></textarea>
 </fieldset>

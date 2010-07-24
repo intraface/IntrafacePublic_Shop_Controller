@@ -3,9 +3,9 @@
 
 <?php if ($product['stock'] == 0 || $stock['for_sale'] > 0): ?>
     <p><form method="POST" class="buy" action="<?php e(url('add'));?>">
-            <input type="submit" name="add_product_id" value="<?php e(__('Buy')); ?>" />
+            <input type="submit" name="add_product_id" value="<?php e(t('Buy')); ?>" />
         </form>
     </p>
 <?php else: ?>
-    <p class="shop-sold-out"><?php e(__('Product is sold out')); ?>.</p>
+    <p class="shop-sold-out"><?php e(t('Product is sold out')); ?>.</p>
 <?php endif; ?>
