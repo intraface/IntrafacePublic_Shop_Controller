@@ -39,7 +39,7 @@ class IntrafacePublic_Shop_Controller_Basket_Details extends IntrafacePublic_Con
         $basket = $client->getBasket();
 
         if (empty($basket['items'])) {
-            throw new IntrafacePublic_Shop_Exception_NotAllowed('There is nothing in the basket, so you cannot order.');
+            throw new k_Forbidden();
         }
 
         $values = array_merge($client->getAddress(), $client->getCustomerCoupon(), $client->getCustomerComment(), $client->getCustomerEan(), $client->getPaymentMethod());

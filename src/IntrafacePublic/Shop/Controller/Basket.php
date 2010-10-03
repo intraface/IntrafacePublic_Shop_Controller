@@ -46,6 +46,7 @@ class IntrafacePublic_Shop_Controller_Basket extends IntrafacePublic_Controller_
         parent::map($name);
     }
 
+    /*
     function __forward($name)
     {
         try {
@@ -57,9 +58,7 @@ class IntrafacePublic_Shop_Controller_Basket extends IntrafacePublic_Controller_
                 $next = new IntrafacePublic_Shop_Controller_Basket_PlaceOrder($this, $name);
             } elseif ($name == 'onlinepayment') {
                 $next = new IntrafacePublic_Shop_Controller_Basket_OnlinePayment($this, $name);
-            } /*elseif ($name == 'ean') {
-            $next = new IntrafacePublic_Shop_Controller_Basket_EAN($this, $name);
-            } */ elseif ($name == 'receipt') {
+            } elseif ($name == 'receipt') {
             $next = new IntrafacePublic_Shop_Controller_Basket_Receipt($this, $name);
             } else {
                 throw new k_http_Response(404);
@@ -78,8 +77,8 @@ class IntrafacePublic_Shop_Controller_Basket extends IntrafacePublic_Controller_
             'error' => $error,
             'headline' => $headline);
         return $this->render('IntrafacePublic/Shop/templates/basket-container-tpl.php', $data);
-
     }
+    */
 
     function wrapHtml($content)
     {

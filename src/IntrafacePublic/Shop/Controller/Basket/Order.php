@@ -32,7 +32,7 @@ class IntrafacePublic_Shop_Controller_Basket_Order extends IntrafacePublic_Contr
         $basket = $this->context->getShop()->getBasket($values);
 
         if (empty($basket['items'])) {
-            throw new IntrafacePublic_Shop_Exception_NotAllowed('The cart is empty, so you are not allowed on this page.');
+            throw new k_Forbidden();
         }
 
         $data = array('items'       => $basket['items'],
