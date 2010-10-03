@@ -41,7 +41,7 @@ class IntrafacePublic_Shop_Controller_Product_Variation extends k_Component
             }
         }
 
-        $title = $result['product']['name']);
+        $title = $result['product']['name'];
         if ($variation) {
             $title .= ' - '.$variation['variation']['name'];
         }
