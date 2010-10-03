@@ -1,13 +1,9 @@
 <?php
 class IntrafacePublic_Shop_Controller_Basket_OnlinePayment extends IntrafacePublic_OnlinePayment_Controller_Index
 {
-    private $error = array();
+    protected $error = array();
 
-    function getErrors()
-    {
-        return $this->error;
-    }
-
+    /*
     function __construct($context, $name)
     {
         parent::__construct($context, $name);
@@ -16,6 +12,14 @@ class IntrafacePublic_Shop_Controller_Basket_OnlinePayment extends IntrafacePubl
         $this->document->title = 'Online payment';
         $this->document->description = '';
         $this->document->meta = '';
+    }
+    */
+
+    function renderHtml()
+    {
+        $this->document->setTitle('Online payment');
+        $this->document->setCurrentTitle('payment');
+        return parent::renderHtml();
     }
 
     /**
@@ -27,14 +31,8 @@ class IntrafacePublic_Shop_Controller_Basket_OnlinePayment extends IntrafacePubl
         return $this->url('../receipt');
     }
 
-    /*
-    function GET()
+    function getErrors()
     {
-        $data = array('content' => parent::GET());
-        return $this->render('form-container-tpl.php', $data);
-
+        return $this->error;
     }
-    */
-
 }
-

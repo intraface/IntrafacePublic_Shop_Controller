@@ -17,7 +17,7 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
         $this->document->menu = $this->render('IntrafacePublic/Shop/templates/menu-categories-tpl.php', array('url_root' => $this->url('.'), 'categories' => $this->getCategories()));
 
         # We set locale to en_US as default.
-        if(empty($this->document->locale)) $this->document->locale = 'en_US';
+        if (empty($this->document->locale)) $this->document->locale = 'en_US';
     }
     */
 
@@ -28,6 +28,49 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
     {
         $this->shop = $shop;
         $this->template = $template;
+    }
+
+    function map($name)
+    {
+        if (!isset($this->map[$name])) {
+            throw new Exception($name . ' is not a qualified mapping');
+        }
+        return $this->map[$name];
+    }
+
+    function wrapHtml($content)
+    {
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/menu-categories');
+        $menu = $tpl->render($this, array('url_root' => $this->url('.'), 'categories' => $this->getCategories()));
+        return $menu . $content;
+    }
+
+    function renderHtml()
+    {
+        if ($this->query('update_all')) {
+            $this->getShop()->clearCache();
+        }
+
+        if ($this->query('update')) {
+            $this->getShop()->clearFeaturedProductsCache();
+        }
+        $result = $this->getShop()->getFeaturedProducts();
+
+        $this->document->setTitle('Featured products');
+
+        $html = '';
+
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/products-featured');
+
+        foreach ($result as $featured) {
+            $data = array('products' => $featured['products'],
+                          'headline' => $featured['title'],
+                          'currency' => $this->getCurrency());
+            $html .= $tpl->render($this, $data);
+        }
+
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/frontpage');
+        return $tpl->render($this, array('content' => $html));
     }
 
     /**
@@ -47,7 +90,7 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
      */
     public function getOnlinePayment()
     {
-        if(is_callable(array($this->context, 'getOnlinePayment'))) {
+        if (is_callable(array($this->context, 'getOnlinePayment'))) {
             return $this->context->getOnlinePayment();
         }
         return false;
@@ -60,7 +103,7 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
      */
     public function getOnlinePaymentAuthorize()
     {
-        if(is_callable(array($this->context, 'getOnlinePaymentAuthorize'))) {
+        if (is_callable(array($this->context, 'getOnlinePaymentAuthorize'))) {
             return $this->context->getOnlinePaymentAuthorize();
         }
         return false;
@@ -98,7 +141,7 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
 
     function getBreadcrumpTrail()
     {
-        if(is_callable(array($this->context, 'getBreadcrumpTrail'))) {
+        if (is_callable(array($this->context, 'getBreadcrumpTrail'))) {
             return $this->context->getBreadcrumpTrail();
         }
         return array();
@@ -106,7 +149,7 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
 
     function getBreadcrumpTrailPageTitles()
     {
-        if(is_callable(array($this->context, 'getBreadcrumpTrailPageTitles'))) {
+        if (is_callable(array($this->context, 'getBreadcrumpTrailPageTitles'))) {
             return $this->context->getBreadcrumpTrailPageTitles();
         }
         return array();
@@ -118,47 +161,10 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
             $this->currency = $this->getShop()->getCurrency();
         }
 
-        if(!array_key_exists($currency, $this->currency['currencies'])) {
+        if (!array_key_exists($currency, $this->currency['currencies'])) {
             throw new Exception('Invalid currency selection '.$currency);
         }
 
         $this->currency['default'] = $currency;
-    }
-
-    function renderHtml()
-    {
-        if(isset($this->GET['update_all'])) {
-            $this->getShop()->clearCache();
-        }
-
-        if(isset($this->GET['update'])) {
-            $this->getShop()->clearFeaturedProductsCache();
-        }
-        $result = $this->getShop()->getFeaturedProducts();
-
-        $this->document->setTitle($this->t('Featured products'));
-
-        $html = '';
-
-        $tpl = $this->template->create('IntrafacePublic/Shop/templates/products-featured');
-
-        foreach ($result as $featured) {
-            $data = array('products' => $featured['products'],
-                          'headline' => $featured['title'],
-                          'currency' => $this->getCurrency());
-            $html .= $tpl->render($this, $data);
-        }
-
-        $tpl = $this->template->create('IntrafacePublic/Shop/templates/frontpage');
-        return $tpl->render($this, array('content' => $html));
-    }
-
-    function forward($name)
-    {
-        if (!isset($this->map[$name])) {
-            throw new Exception($name . ' is not a qualified mapping');
-        }
-        $next = new $this->map[$name]($this, $name);
-        return $next->handleRequest();
     }
 }

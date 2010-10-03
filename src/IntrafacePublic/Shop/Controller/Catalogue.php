@@ -1,6 +1,28 @@
 <?php
 class IntrafacePublic_Shop_Controller_Catalogue extends IntrafacePublic_Controller_Pluggable
 {
+    protected $template;
+
+    function __construct(k_TemplateFactory $template)
+    {
+        $this->template = $template;
+    }
+
+    function map($name)
+    {
+        return 'IntrafacePublic_Shop_Controller_Catalogue_Show';
+    }
+
+    function renderHtml()
+    {
+        $this->document->setTitle($this->getPageTitle());
+        $data = $this->getCategory();
+        $data['bread_crump'] = $this->getBreadcrumpTrail();
+
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/catalogue');
+        return $tpl->render($this, $data);
+    }
+
     function getCurrency()
     {
         return $this->context->getCurrency();
@@ -23,7 +45,7 @@ class IntrafacePublic_Shop_Controller_Catalogue extends IntrafacePublic_Controll
     function getCategory()
     {
         return array(
-            'name' => $this->__($this->getPageTitle()),
+            'name' => $this->getPageTitle(),
             'categories' => $this->context->getCategories()
         );
     }
@@ -40,7 +62,7 @@ class IntrafacePublic_Shop_Controller_Catalogue extends IntrafacePublic_Controll
             $bread_crump = $this->context->getBreadcrumpTrail();
         }
         if ($this->getPageTitle() != '') {
-            $bread_crump[] = array('name' => $this->__($this->getPageTitle()), 'url' => $this->url());
+            $bread_crump[] = array('name' => $this->getPageTitle(), 'url' => $this->url());
         }
         return $bread_crump;
     }
@@ -57,19 +79,5 @@ class IntrafacePublic_Shop_Controller_Catalogue extends IntrafacePublic_Controll
     function urlToProductId($id)
     {
         return $this->context->url('product/'.$id);
-    }
-
-    function GET()
-    {
-        $this->document->title = $this->__($this->getPageTitle());
-        $data = $this->getCategory();
-        $data['bread_crump'] = $this->getBreadcrumpTrail();
-        return $this->render('IntrafacePublic/Shop/templates/catalogue-tpl.php', $data);
-    }
-
-    function forward($name)
-    {
-        $next = new IntrafacePublic_Shop_Controller_Catalogue_Show($this, $name);
-        return $next->handleRequest();
     }
 }

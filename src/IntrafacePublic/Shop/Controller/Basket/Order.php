@@ -1,18 +1,10 @@
 <?php
 class IntrafacePublic_Shop_Controller_Basket_Order extends IntrafacePublic_Controller_Pluggable
 {
-    private $error = array();
+    protected $error = array();
+    protected $template;
 
-    function getCurrency()
-    {
-        return $this->context->getCurrency();
-    }
-
-    function getErrors()
-    {
-        return $this->error;
-    }
-
+    /*
     function __construct($context, $name)
     {
         parent::__construct($context, $name);
@@ -22,9 +14,18 @@ class IntrafacePublic_Shop_Controller_Basket_Order extends IntrafacePublic_Contr
         $this->document->description = '';
         $this->document->meta = '';
     }
+    */
 
-    function GET()
+    function __construct(k_TemplateFactory $template)
     {
+        $this->template = $template;
+    }
+
+    function renderHtml()
+    {
+        $this->document->setTitle('Order');
+        $this->document->setCurrentStep('order');
+
         $values = array_merge($this->context->getShop()->getAddress(), $this->context->getShop()->getCustomerCoupon(), $this->context->getShop()->getCustomerComment(), $this->context->getShop()->getCustomerEan(), $this->context->getShop()->getPaymentMethod());
 
         // Basket is getting values to perform basket evaluation
@@ -39,11 +40,13 @@ class IntrafacePublic_Shop_Controller_Basket_Order extends IntrafacePublic_Contr
                       'currency' => $this->getCurrency()
                       );
 
-        $basket = $this->render('IntrafacePublic/Shop/templates/order-basket-tpl.php', $data);
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/order-basket');
+        $basket = $tpl->render($this, $data);
 
         $data = array('value' => $values);
 
-        $address = $this->render('IntrafacePublic/Shop/templates/order-details-tpl.php', $data);
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/order-details');
+        $address = $tpl->render($this, $data);
 
         try {
             $terms_url = $this->context->getShop()->getTermsOfTradeUrl();
@@ -51,22 +54,23 @@ class IntrafacePublic_Shop_Controller_Basket_Order extends IntrafacePublic_Contr
             $terms_url = 'terms/';
         }
 
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/order-accept-terms');
         $data = array('terms_url' => $terms_url);
-        $terms = $this->render('IntrafacePublic/Shop/templates/order-accept-terms-tpl.php', $data);
+        $terms = $tpl->render($this, $data);
 
         $newsletter = '';
 
         $data['content'] = $address.$basket.$terms;
-        $data['button_continue_label'] = $this->__('Send');
-        $data['button_continue_name'] = $this->__('Send');
-        $data['button_back_label'] = $this->__('Back');
+        $data['button_continue_label'] = 'Send';
+        $data['button_continue_name'] = 'Send';
+        $data['button_back_label'] = 'Back';
         $data['button_back_link'] = $this->url('../details');
 
-        return $this->render('IntrafacePublic/Shop/templates/form-container-tpl.php', $data);
-
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/form-container');
+        return $tpl->render($this, $data);
     }
 
-    function POST()
+    function postForm()
     {
         $values = array_merge(
             $this->context->getShop()->getAddress(),
@@ -80,8 +84,8 @@ class IntrafacePublic_Shop_Controller_Basket_Order extends IntrafacePublic_Contr
             throw new Exception('There is no valid order');
         }
 
-        if (!isset($this->POST['accept_terms_of_trade']) || $this->POST['accept_terms_of_trade'] != '1') {
-            $this->error[] = $this->__('You need to accept the terms of trade');
+        if ($this->body('accept_terms_of_trade') != '1') {
+            $this->error[] = 'You need to accept the terms of trade';
         } else {
             // any internal note can be given which is not visible for the customer.
             $values['internal_note'] = '';
@@ -90,7 +94,6 @@ class IntrafacePublic_Shop_Controller_Basket_Order extends IntrafacePublic_Contr
             $values = $this->triggerEvent('onBasketOrderPlaceOrder', $values);
 
             // we validate before we place the order
-            // @todo Måske kan vi overveje at bruge
             $this->error = IntrafacePublic_Shop_Tools_ValidateDetails::validate($values);
 
             if (count($this->error) == 0) {
@@ -116,17 +119,16 @@ class IntrafacePublic_Shop_Controller_Basket_Order extends IntrafacePublic_Contr
                         if (substr($url, 0, 7) != 'http://' && substr($url, 0, 8) != 'https://') {
                              $url = $this->url('../'.$url);
                         }
-                        throw new k_http_Redirect($url);
+                        return new k_SeeOther($url);
                     }
 
-                    throw new k_http_Redirect($this->url('../onlinepayment/'.$order_identifier));
+                    return new k_SeeOther($this->url('../onlinepayment/'.$order_identifier));
                 }
 
-                throw new k_http_Redirect($this->url('../receipt'));
+                return new k_SeeOther($this->url('../receipt'));
             }
         }
-
-        return $this->GET();
+        return $this->render();
     }
 
     public function getShop()
@@ -139,4 +141,13 @@ class IntrafacePublic_Shop_Controller_Basket_Order extends IntrafacePublic_Contr
         return $this->context->getOnlinePaymentAuthorize();
     }
 
+    function getCurrency()
+    {
+        return $this->context->getCurrency();
+    }
+
+    function getErrors()
+    {
+        return $this->error;
+    }
 }

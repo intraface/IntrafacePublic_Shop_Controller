@@ -1,29 +1,36 @@
 <?php
 class IntrafacePublic_Shop_Controller_Basket_Receipt extends k_Component
 {
-    private $error = array();
+    protected $error = array();
+    protected $template;
 
-    function getErrors()
-    {
-        return $this->error;
-    }
-
+    /*
     function __construct($context, $name)
     {
         parent::__construct($context, $name);
 
         $this->document->current_step = 'receipt';
     }
+    */
 
-    function GET()
+    function __construct(k_TemplateFactory $template)
     {
-        $this->document->title = 'Order confirmation';
-        $this->document->description = '';
-        $this->document->keywords = '';
+        $this->template = $template;
+    }
+
+    function renderHtml()
+    {
+        $this->document->setTitle('Order confirmation');
+        $this->document->setCurrentStep('receipt');
 
         $text = $this->context->getShop()->getReceiptText();
 
-        return $this->render('IntrafacePublic/Shop/templates/receipt-tpl.php', array('text' => $text));
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/receipt');
+        return $tpl->render($this, array('text' => $text));
+    }
 
+    function getErrors()
+    {
+        return $this->error;
     }
 }

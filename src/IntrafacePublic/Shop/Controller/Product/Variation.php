@@ -1,59 +1,74 @@
 <?php
 class IntrafacePublic_Shop_Controller_Product_Variation extends k_Component
 {
-    function getShop()
+    protected $template;
+
+    function __construct(k_TemplateFactory $template)
     {
-        return $this->context->getShop();
+        $this->template = $template;
     }
 
-    function GET()
+    function map($name)
+    {
+        if ($name == 'add') {
+            return 'IntrafacePublic_Shop_Controller_Products_Add';
+        }
+    }
+
+    function dispatch()
     {
         $result = $this->getShop()->getProduct($this->context->name);
 
         if ($result['product']['id'] == 0) {
-            throw new k_http_Response(404);
+            throw new PageNotFound();
         }
+        return parent::dispatch();
+    }
 
-        if(!is_array($result['variations'])) {
+    function renderHtml()
+    {
+        $result = $this->getShop()->getProduct($this->context->name);
+
+        if (!is_array($result['variations'])) {
             throw new Exception('The product does not have variations');
         }
 
         $variation = false;
         foreach($result['variations'] AS $tmp_variation) {
-            if($tmp_variation['variation']['identifier'] == $this->name) {
+            if ($tmp_variation['variation']['identifier'] == $this->name) {
                 $variation = $tmp_variation;
                 break;
             }
         }
 
-        $this->document->title = $result['product']['name'];
-        if($variation) $this->document->title .= ' - '.$variation['variation']['name'];
+        $title = $result['product']['name']);
+        if ($variation) {
+            $title .= ' - '.$variation['variation']['name'];
+        }
+
+        $this->document->setTitle($title);
 
         $data = $this->context->getProductDataArray($result);
-        $data['product_variation_buy'] = $this->render('IntrafacePublic/Shop/templates/product-variation-buy-tpl.php', array_merge($result, array('variation' => $variation)));
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/product-variation-buy');
+        $data['product_variation_buy'] = $tpl->render($this, array_merge($result, array('variation' => $variation)));
 
-        $content = $this->render('IntrafacePublic/Shop/templates/product-tpl.php', $data);
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/product');
+        $content = $tpl->render($this, $data);
         return $content;
     }
 
-    function POST()
+    function postForm()
     {
-        if(isset($this->POST['select_variation'])) {
-            if(isset($this->POST['attribute']) && is_array($this->POST['attribute']) && count($this->POST['attribute']) > 0) {
-                throw new k_http_Redirect($this->url('../'.implode('-',$this->POST['attribute'])));
+        if ($this->body('select_variation')) {
+            if ($this->body('attribute') && is_array($this->body('attribute')) && count($this->body('attribute')) > 0) {
+                return new k_SeeOther($this->url('../'.implode('-',$this->body('attribute'))));
             }
-
-            return $this->GET();
         }
+        return $this->render();
     }
 
-    function forward($name)
+    function getShop()
     {
-        if ($name == 'add') {
-            $next = new IntrafacePublic_Shop_Controller_Products_Add($this, $name);
-            return $next->handleRequest();
-        }
-
-
+        return $this->context->getShop();
     }
 }

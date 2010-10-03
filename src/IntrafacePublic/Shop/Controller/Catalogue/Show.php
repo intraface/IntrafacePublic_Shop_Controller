@@ -1,6 +1,67 @@
 <?php
 class IntrafacePublic_Shop_Controller_Catalogue_Show extends IntrafacePublic_Controller_Pluggable
 {
+    protected $template;
+
+    function __construct(k_TemplateFactory $template)
+    {
+        $this->template = $template;
+    }
+
+    function map($name)
+    {
+        return 'IntrafacePublic_Shop_Controller_Catalogue_Show';
+    }
+
+    function dispatch()
+    {
+        $category = $this->getCategory();
+        if ($category === false) {
+            throw new k_PageNotFound(404);
+        }
+
+        return parent::dispatch();
+    }
+
+    function renderHtml()
+    {
+        $category = $this->getCategory();
+
+        $this->document->setTitle($category['name']);
+
+        if ($this->query('start')) {
+            $offset = (int)$this->query('start');
+        } else {
+            $offset = 0;
+        }
+
+        if ($this->query('update')) {
+            $this->getShop()->clearProductsInCategoryIdCache($category['id'], $this->numberOfProductsPerPage(), $offset);
+        }
+
+        $products = $this->getShop()->getProductsInCategoryId($category['id'], $this->numberOfProductsPerPage(), $offset);
+        $products['currency'] = $this->getCurrency();
+
+        $data = $this->getCategory();
+        $data['bread_crump'] = $this->getBreadcrumpTrail();
+
+        $products = $this->triggerEvent('postProductsInCategoryGet', $products);
+
+        $tpl_breadcrumb = $this->template->create('IntrafacePublic/Shop/templates/catalogue-breadcrumptrail');
+        $tpl_category = $this->template->create('IntrafacePublic/Shop/templates/catalogue-category');
+        $tpl_products = $this->template->create('IntrafacePublic/Shop/templates/catalogue-products');
+        $tpl_paging = $this->template->create('IntrafacePublic/Shop/templates/products-paging');
+
+        return $tpl_breadcrumb->render($this, $data)
+          . $tpl_category->render($this, $data)
+          . $tpl_products->render($this, $products)
+          . $tpl_paging->render($this, $products);
+    }
+
+    function getCategoryPicture($category_id)
+    {
+        return $this->context->getCategoryPicture($category_id);
+    }
 
     function getCurrency()
     {
@@ -17,7 +78,7 @@ class IntrafacePublic_Shop_Controller_Catalogue_Show extends IntrafacePublic_Con
         $context = $this->context->getCategory();
         // Finds category from identifier
         foreach($context['categories'] AS $category) {
-            if ($category['identifier'] == $this->name) {
+            if ($category['identifier'] == $this->name()) {
                 return $category;
             }
         }
@@ -41,49 +102,5 @@ class IntrafacePublic_Shop_Controller_Catalogue_Show extends IntrafacePublic_Con
     function numberOfProductsPerPage()
     {
         return $this->context->numberOfProductsPerPage();
-    }
-
-    function GET()
-    {
-        $category = $this->getCategory();
-        if ($category === false) {
-            throw new k_http_Response(404);
-        }
-
-        $this->document->title = $category['name'];
-
-        if (!empty($this->GET['start'])) {
-            $offset = (int)$this->GET['start'];
-        } else {
-            $offset = 0;
-        }
-
-        if(isset($this->GET['update'])) {
-            $this->getShop()->clearProductsInCategoryIdCache($category['id'], $this->numberOfProductsPerPage(), $offset);
-        }
-
-        $products = $this->getShop()->getProductsInCategoryId($category['id'], $this->numberOfProductsPerPage(), $offset);
-        $products['currency'] = $this->getCurrency();
-
-        $data = $this->getCategory();
-        $data['bread_crump'] = $this->getBreadcrumpTrail();
-        
-        $products = $this->triggerEvent('postProductsInCategoryGet', $products);
-
-        return $this->render('IntrafacePublic/Shop/templates/catalogue-breadcrumptrail-tpl.php', $data)
-          . $this->render('IntrafacePublic/Shop/templates/catalogue-category-tpl.php', $data)
-          . $this->render('IntrafacePublic/Shop/templates/catalogue-products-tpl.php', $products)
-          . $this->render('IntrafacePublic/Shop/templates/products-paging-tpl.php', $products);
-    }
-
-    function getCategoryPicture($category_id)
-    {
-        return $this->context->getCategoryPicture($category_id);
-    }
-
-    function forward($name)
-    {
-        $next = new IntrafacePublic_Shop_Controller_Catalogue_Show($this, $name);
-        return $next->handleRequest();
     }
 }

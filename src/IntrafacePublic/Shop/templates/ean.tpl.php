@@ -1,6 +1,6 @@
-<?php if (count($this->getErrors()) > 0): ?>
+<?php if (count($context->getErrors()) > 0): ?>
 <ul class="errors">
-<?php foreach ($this->getErrors() as $error): ?>
+<?php foreach ($context->getErrors() as $error): ?>
 <li><?php e(t($error)); ?></li>
 <?php endforeach; ?>
 </ul>

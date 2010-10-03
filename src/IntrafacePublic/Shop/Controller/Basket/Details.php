@@ -1,13 +1,18 @@
 <?php
 class IntrafacePublic_Shop_Controller_Basket_Details extends IntrafacePublic_Controller_Pluggable
 {
-    private $error = array();
+    protected $error = array();
+    protected $template;
 
-    function getErrors()
+    function map($name)
     {
-        return $this->error;
+        if ($name == 'ean') {
+            return 'IntrafacePublic_Shop_Controller_Basket_EAN';
+        }
+        parent::forward($name);
     }
 
+    /*
     function __construct($context, $name)
     {
         parent::__construct($context, $name);
@@ -17,9 +22,18 @@ class IntrafacePublic_Shop_Controller_Basket_Details extends IntrafacePublic_Con
         $this->document->description = '';
         $this->document->meta = '';
     }
+    */
 
-    function GET()
+    function __construct(k_TemplateFactory $template)
     {
+        $this->template = $template;
+    }
+
+    function renderHtml()
+    {
+        $this->document->setTitle('Details');
+        $this->document->setCurrentStep('details');
+
         $client = $this->context->getShop();
 
         $basket = $client->getBasket();
@@ -32,7 +46,7 @@ class IntrafacePublic_Shop_Controller_Basket_Details extends IntrafacePublic_Con
 
         $data = array();
 
-        $countries = new Ilib_Countries('iso-8859-1', array($this, '__'));
+        $countries = new Ilib_Countries('iso-8859-1', array($this, 't'));
         // If available country regions is set in root
         if (is_callable(array($this->context->context->context, 'getAvailableCountryRegions'))) {
             $values['countries'] = $countries->getCountriesByRegionName(
@@ -42,46 +56,50 @@ class IntrafacePublic_Shop_Controller_Basket_Details extends IntrafacePublic_Con
             $values['countries'] = $countries->getAll();
         }
 
-        $data['details'] = $this->render('IntrafacePublic/Shop/templates/details-customer-tpl.php', $values);
-        $data['payment_method'] = $this->render('IntrafacePublic/Shop/templates/details-payment-method-tpl.php', array_merge($values, array('payment_methods' => $client->getPaymentMethods())));
-        //$data['ean'] = $this->render('IntrafacePublic/Shop/templates/details-customer-ean-tpl.php', $values);
-        $data['coupon'] = $this->render('IntrafacePublic/Shop/templates/details-customer-coupon-tpl.php', $values);
-        $data['comment'] = $this->render('IntrafacePublic/Shop/templates/details-customer-comment-tpl.php', $values);
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/details-customer');
+        $data['details'] = $tpl->render($this, $values);
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/details-payment-method');
+        $data['payment_method'] = $tpl->render($this, array_merge($values, array('payment_methods' => $client->getPaymentMethods())));
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/details-customer-coupon');
+        $data['coupon'] = $tpl->render($this, $values);
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/details-customer-comment');
+        $data['comment'] = $tpl->render($this, $values);
         if ($this->context->getNewsletter()) {
-            $data['newsletter'] = $this->render('IntrafacePublic/Shop/templates/details-newsletter-tpl.php');
+            $tpl = $this->template->create('IntrafacePublic/Shop/templates/details-newsletter');
+            $data['newsletter'] = $tpl->render($this);
         }
-
-        $content = $this->render('IntrafacePublic/Shop/templates/details-form-container-tpl.php', $data);
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/details-form-container');
+        $content = $tpl->render($this, $data);
 
         $data = array();
         $data['content'] = $content;
-        $data['button_back_label'] = $this->__('Back');
+        $data['button_back_label'] = $this->t('Back');
         $data['button_back_link'] = $this->url('../');
-        $data['button_continue_label'] = $this->__('Continue...');
+        $data['button_continue_label'] = $this->t('Continue...');
         $data['button_continue_name'] = 'send';
-
-        return $this->render('IntrafacePublic/Shop/templates/form-container-tpl.php', $data);
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/form-container');
+        return $tpl->render($this, $data);
     }
 
-    function POST()
+    function postForm()
     {
-        $values = $this->POST->getArrayCopy();
+        $values = $this->body();
         $error_message = IntrafacePublic_Shop_Tools_ValidateDetails::validate($values);
 
         foreach ($error_message as $key => $value) {
-            $error_message[$key] = $this->__($value);
+            $error_message[$key] = $this->t($value);
         }
 
         // At this point we save information without validating it.
         // That means if you navigate back and forth the data is
         // kept in the form. Data is first validated when order is placed
         if (!$this->context->getShop()->saveAddress($values)) {
-            $error_message[] = $this->__('Information could not be saved - try again later.');
+            $error_message[] = $this->t('Information could not be saved - try again later.');
         }
 
         if (isset($values['customer_comment']) && $values['customer_comment'] != '') {
             if (!$this->context->getShop()->saveCustomerComment($values['customer_comment'])) {
-                $error_message[] = $this->__('Your comment could not be saved');
+                $error_message[] = $this->t('Your comment could not be saved');
             }
         }
         /*
@@ -93,27 +111,27 @@ class IntrafacePublic_Shop_Controller_Basket_Details extends IntrafacePublic_Con
         */
         if (isset($values['customer_coupon']) && $values['customer_coupon'] != '') {
             if (!$this->context->getShop()->saveCustomerCoupon($values['customer_coupon'])) {
-                $error_message[] = $this->__('Your customer coupon could not be saved');
+                $error_message[] = $this->t('Your customer coupon could not be saved');
             }
         }
 
         if (empty($values['payment_method']) || $values['payment_method'] == '0') {
-            $error_message[] = $this->__('You need to select a payment method');
+            $error_message[] = $this->t('You need to select a payment method');
         } else {
             if (!$this->context->getShop()->savePaymentMethod($values['payment_method'])) {
-                $error_message[] = $this->__('Your payment method could not be saved');
+                $error_message[] = $this->t('Your payment method could not be saved');
             }
         }
 
         if (count($error_message) > 0) {
             $this->error = $error_message;
-            return $this->GET();
+            return $this->render();
         }
 
         if ($this->context->getNewsletter()) {
-            if (!empty($this->POST['email']) AND !empty($this->POST['customer_newsletter'])) {
+            if ($this->body('email') AND $this->body('customer_newsletter')) {
                 try {
-                    $this->context->getNewsletter()->subscribe($this->POST['email'], $this->POST['name'], $_SERVER['REMOTE_ADDR']);
+                    $this->context->getNewsletter()->subscribe($this->body('email'), $this->body('name'), $_SERVER['REMOTE_ADDR']);
                 } catch (Exception $e) {
                     // throw $e;
                 }
@@ -123,25 +141,19 @@ class IntrafacePublic_Shop_Controller_Basket_Details extends IntrafacePublic_Con
 
         if (isset($values['payment_method'])
             && $values['payment_method'] == 'EAN') {
-            throw new k_http_Redirect($this->url('ean'));
+            return new k_SeeOther($this->url('ean'));
         }
 
-        throw new k_http_Redirect($this->url('../order'));
-    }
-
-
-    function forward($name)
-    {
-        if ($name == 'ean') {
-            $next = new IntrafacePublic_Shop_Controller_Basket_EAN($this, $name);
-            return $next->handleRequest();
-        }
-
-        parent::forward($name);
+        return new k_SeeOther($this->url('../order'));
     }
 
     function getShop()
     {
         return $this->context->getShop();
+    }
+
+    function getErrors()
+    {
+        return $this->error;
     }
 }

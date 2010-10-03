@@ -2,12 +2,9 @@
 class IntrafacePublic_Shop_Controller_Basket_EAN extends k_Component
 {
     protected $error_message = array();
+    protected $template;
 
-    function getErrors()
-    {
-        return $this->error_message;
-    }
-
+    /*
     function __construct($context, $name)
     {
         parent::__construct($context, $name);
@@ -17,41 +14,55 @@ class IntrafacePublic_Shop_Controller_Basket_EAN extends k_Component
         $this->document->description = '';
         $this->document->meta = '';
     }
+    */
 
-    function GET()
+    function __construct(k_TemplateFactory $template)
     {
+        $this->template = $template;
+    }
+
+    function renderHtml()
+    {
+        $this->document->setTitle('Payment via EAN');
+        $this->document->setCurrentStep('details');
+
         $values = array();
-        $content = $this->render('IntrafacePublic/Shop/templates/ean.tpl.php', $values);
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/ean');
+        $content = $tpl->render($this, $values);
 
         $data = array();
         $data['content'] = $content;
-        $data['button_back_label'] = $this->__('Back');
+        $data['button_back_label'] = 'Back';
         $data['button_back_link'] = $this->url('../');
-        $data['button_continue_label'] = $this->__('Continue...');
+        $data['button_continue_label'] = 'Continue...';
         $data['button_continue_name'] = 'send';
 
-        return $this->render('IntrafacePublic/Shop/templates/form-container-tpl.php', $data);
-
+        $tpl = $this->template->create('IntrafacePublic/Shop/templates/form-container');
+        return $tpl->render($this, $data);
     }
 
-    function POST()
+    function postForm()
     {
-        $input = $this->POST->getArrayCopy();
+        $input = $this->body();
 
         if (isset($input['customer_ean']) && strlen($input['customer_ean']) != 13) {
             $this->error_message[] = 'EAN must be 13 characters long';
         }
 
         if (!$this->context->getShop()->saveCustomerEan($input['customer_ean'])) {
-            $this->error_message[] = $this->__('Your EAN number could not be saved');
+            $this->error_message[] = 'Your EAN number could not be saved';
         }
 
         if (count($this->error_message) > 0) {
-
-            return $this->GET();
+            return $this->render();
         }
 
-        throw new k_http_Redirect($this->url('../../order'));
+        return new k_SeeOther($this->url('../../order'));
+    }
+
+    function getErrors()
+    {
+        return $this->error_message;
     }
 }
 

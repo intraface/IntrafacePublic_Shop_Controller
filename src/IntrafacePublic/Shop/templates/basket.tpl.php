@@ -13,7 +13,7 @@
             <tr>
                 <td class="help" colspan="2"><?php e(t('You can change the quantity of the products by writing a new quantity and update the basket.')); ?></td>
                 <td class="total"><strong><?php e(t('Total')); ?></strong></td>
-                <td class="total" style="text-align: right;"><?php e($currency); ?> <?php $total_price = new Ilib_Variable_Float($total_price[$currency]['incl_vat']); e($total_price->getAsLocal($this->document->locale, 2)); ?></td>
+                <td class="total" style="text-align: right;"><?php e($currency); ?> <?php $total_price = new Ilib_Variable_Float($total_price[$currency]['incl_vat']); e($total_price->getAsLocal($context->document()->locale(), 2)); ?></td>
             </tr>
         </tfoot>
         <tbody>
@@ -38,7 +38,7 @@
                         <?php $i++; ?>
                     <?php endif; ?>
                 </td>
-                <td style="text-align: right;"><?php e($currency); ?>&nbsp;<?php $totalprice_incl_vat = new Ilib_Variable_Float($item['currency'][$currency]["totalprice_incl_vat"]); e($totalprice_incl_vat->getAsLocal($this->document->locale, 2)); ?></td>
+                <td style="text-align: right;"><?php e($currency); ?>&nbsp;<?php $totalprice_incl_vat = new Ilib_Variable_Float($item['currency'][$currency]["totalprice_incl_vat"]); e($totalprice_incl_vat->getAsLocal($context->document()->locale(), 2)); ?></td>
             </tr>
             <?php endforeach; ?>
         </tbody>
