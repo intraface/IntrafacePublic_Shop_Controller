@@ -84,7 +84,7 @@ class IntrafacePublic_Shop_Controller_Basket extends IntrafacePublic_Controller_
     {
         $data = array(
             'content' => $content,
-            //'error' => $this->getErrorHtml($this->context->getErrors()),
+            'error' => $this->getErrorHtml($this->context->getErrors()),
             'headline' => $this->document->currentStep());
 
         $tpl = $this->template->create('IntrafacePublic/Shop/templates/basket-container');
@@ -125,8 +125,8 @@ class IntrafacePublic_Shop_Controller_Basket extends IntrafacePublic_Controller_
     {
         $this->triggerEvent('preBasketPost');
 
-        if (!empty($this->POST['update']) AND is_array($this->POST['items'])) {
-            foreach ($this->POST['items'] as $item) {
+        if (is_array($this->body('items'))) {
+            foreach ($this->body('items') as $item) {
                 if (!$this->getShop()->changeBasket(intval($item['product_id']), intval($item['product_variation_id']), abs(intval($item['quantity'])))) {
                     $product = $this->getShop()->getProduct(intval($item['product_id']));
                     if ($product['product']['has_variation'] && !empty($product['variation'])) {
@@ -135,7 +135,7 @@ class IntrafacePublic_Shop_Controller_Basket extends IntrafacePublic_Controller_
                     } else {
                         $name = $product['product']['name'];
                     }
-                    $this->error[$item['product_id']] =  $name. ' ' . $this->__('is not in stock in that quantity');
+                    $this->error[$item['product_id']] =  $name. ' ' . $this->t('is not in stock in that quantity');
                 }
             }
         }
