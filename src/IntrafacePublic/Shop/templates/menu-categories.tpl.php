@@ -27,7 +27,7 @@ while($level >= 0) {
         echo '<li><a href="'.implode('/', array_merge($level_menu_url, array($category['identifier']))).'">'.$category['name'].'</a></li>';
 
         # If there is subcategories to the category
-        if(is_array($category['categories']) && count($category['categories']) > 0) {
+        if (is_array($category['categories']) && count($category['categories']) > 0) {
 
             # We make the items for the next level the sub categories of this category
             $level_categories[$level+1] = $category['categories'];
@@ -48,7 +48,7 @@ while($level >= 0) {
     }
 
     # If all elements for the level_categories for this level is gone, we move a level up.
-    if(count($level_categories[$level]) == 0) {
+    if (count($level_categories[$level]) == 0) {
         # First we remove the identifier from the level_menu_url
         array_pop($level_menu_url);
 

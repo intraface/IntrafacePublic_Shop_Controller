@@ -92,7 +92,7 @@ class IntrafacePublic_Shop_Controller_Products extends IntrafacePublic_Controlle
 
     function numberOfProductsPerPage()
     {
-        if(is_callable(array($this->context, 'numberOfProductsPerPage'))) {
+        if (is_callable(array($this->context, 'numberOfProductsPerPage'))) {
 
             return $this->context->numberOfProductsPerPage();
         }

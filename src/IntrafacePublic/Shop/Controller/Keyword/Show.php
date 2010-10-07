@@ -18,7 +18,7 @@ class IntrafacePublic_Shop_Controller_Keyword_Show extends k_Component
             $offset = 0;
         }
 
-        if($this->query('update')) {
+        if ($this->query('update')) {
             $this->getShop()->clearProductsWithKeywordIdCache($this->name, 20, $offset);
         }
 

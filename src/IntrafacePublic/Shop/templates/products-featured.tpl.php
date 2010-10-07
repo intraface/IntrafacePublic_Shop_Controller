@@ -7,7 +7,7 @@ $only_show_products_with_pictures = 1;
 ?>
 
 <?php if (is_array($products) AND count($products) > 0): ?>
-<?php if(isset($headline) && $headline != ''): ?>
+<?php if (isset($headline) && $headline != ''): ?>
     <h3 style="clear: both;"><?php e($headline); ?></h3>
 <?php endif; ?>
 
@@ -15,7 +15,7 @@ $only_show_products_with_pictures = 1;
     <?php if (!empty($product['pictures'][0]) AND !array_key_exists(0, $product['pictures']) && isset($only_show_products_with_pictures) && $only_show_products_with_pictures == 1) continue; ?>
 
     <div class="product-feature">
-        <?php if(isset($show_name) && $show_name == 1): ?>
+        <?php if (isset($show_name) && $show_name == 1): ?>
             <p><a href="<?php e(url('product/' . $product['id'])); ?>"><?php e($product['name']); ?></a></p>
         <?php endif; ?>
         <?php if (!empty($product['pictures'][0])): ?>

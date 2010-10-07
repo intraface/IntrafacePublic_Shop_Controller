@@ -38,9 +38,9 @@ class IntrafacePublic_Shop_Controller_Product_Show extends IntrafacePublic_Contr
 
     public function POST()
     {
-        if(isset($this->POST['select_variation'])) {
+        if (isset($this->POST['select_variation'])) {
 
-            if(isset($this->POST['attribute']) && is_array($this->POST['attribute']) && count($this->POST['attribute']) > 0) {
+            if (isset($this->POST['attribute']) && is_array($this->POST['attribute']) && count($this->POST['attribute']) > 0) {
                 throw new k_http_Redirect($this->url('./'.implode('-', $this->POST['attribute'])));
             }
 
@@ -60,11 +60,11 @@ class IntrafacePublic_Shop_Controller_Product_Show extends IntrafacePublic_Contr
 
     public function getProduct()
     {
-        if(isset($this->product)) {
+        if (isset($this->product)) {
             return $this->product;
         }
 
-        if($this->query('update')) {
+        if ($this->query('update')) {
             $this->getShop()->clearProductCache($this->name());
         }
 
@@ -81,12 +81,12 @@ class IntrafacePublic_Shop_Controller_Product_Show extends IntrafacePublic_Contr
         $tpl_pictures = $this->template->create('IntrafacePublic/Shop/templates/product-pictures');
 
         $data['pictures'] = $tpl_pictures->render($this, $result);
-        if($this->query('message') != '') {
+        if ($this->query('message') != '') {
             $tpl_message = $this->template->create('IntrafacePublic/Shop/templates/product-message');
             $data['message'] = $tpl_message->render($this, array('message' => $this->query('message')));
         }
 
-        if($result['product']['has_variation']) {
+        if ($result['product']['has_variation']) {
             $tpl_variation = $this->template->create('IntrafacePublic/Shop/templates/product-variation-buy');
             $data['product_variation_buy'] = $tpl_variation->render($this, $result);
         } else {
@@ -94,12 +94,12 @@ class IntrafacePublic_Shop_Controller_Product_Show extends IntrafacePublic_Contr
             $data['product_buy'] = $tpl_buy->render($this, $result);
         }
 
-        if($this->query('update')) {
-            $this->getShop()->clearRelatedProductsCache($this->name);
+        if ($this->query('update')) {
+            $this->getShop()->clearRelatedProductsCache($this->name());
         }
 
         $tpl_related = $this->template->create('IntrafacePublic/Shop/templates/product-related-products');
-        $data['related_products'] = $tpl_related->render($this, array('related_products' => $this->getShop()->getRelatedProducts($this->name), 'currency' => $this->getCurrency()));
+        $data['related_products'] = $tpl_related->render($this, array('related_products' => $this->getShop()->getRelatedProducts($this->name()), 'currency' => $this->getCurrency()));
         $tpl_breadcrumb = $this->template->create('IntrafacePublic/Shop/templates/product-breadcrumptrail');
         $data['breadcrumptrail'] = $tpl_breadcrumb->render($this, array('breadcrumptrail' => $this->getBreadcrumpTrail()));
 
@@ -111,7 +111,7 @@ class IntrafacePublic_Shop_Controller_Product_Show extends IntrafacePublic_Contr
     protected function getBreadcrumpTrail()
     {
         $breadcrump = array();
-        if(is_callable(array($this->context, 'getBreadcrumpTrail'))) {
+        if (is_callable(array($this->context, 'getBreadcrumpTrail'))) {
              $breadcrump = $this->context->getBreadcrumpTrail();
         }
 
