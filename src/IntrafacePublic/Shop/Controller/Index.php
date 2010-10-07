@@ -41,12 +41,16 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
     function wrapHtml($content)
     {
         $tpl = $this->template->create('IntrafacePublic/Shop/templates/menu-categories');
-        $menu = $tpl->render($this, array('url_root' => $this->url('.'), 'categories' => $this->getCategories()));
+        $menu = $tpl->render($this, array('url_root' => $this->url(null), 'categories' => $this->getCategories()));
         return $menu . $content;
     }
 
     function renderHtml()
     {
+        if (!$this->document->locale()) {
+            $this->document->locale = 'en_US';
+        }
+
         if ($this->query('update_all')) {
             $this->getShop()->clearCache();
         }
@@ -123,6 +127,7 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
         if (!$this->categories) {
             $this->categories = $this->getShop()->getProductCategories();
         }
+
         return $this->categories;
     }
 
@@ -132,9 +137,7 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
             $this->currency = $this->getShop()->getCurrency();
         }
 
-        /**
-         * The possibility to change between currencies.
-         */
+        // The possibility to change between currencies.
 
         return $this->currency['default'];
     }
@@ -166,5 +169,10 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
         }
 
         $this->currency['default'] = $currency;
+    }
+
+    function getErrors()
+    {
+        return array();
     }
 }

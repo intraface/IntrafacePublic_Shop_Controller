@@ -19,10 +19,10 @@ class IntrafacePublic_Shop_Controller_Keyword_Show extends k_Component
         }
 
         if ($this->query('update')) {
-            $this->getShop()->clearProductsWithKeywordIdCache($this->name, 20, $offset);
+            $this->getShop()->clearProductsWithKeywordIdCache($this->name(), 20, $offset);
         }
 
-        $products = $this->getShop()->getProductsWithKeywordId($this->name, 20, $offset);
+        $products = $this->getShop()->getProductsWithKeywordId($this->name(), 20, $offset);
         $products['currency'] = $this->getCurrency();
 
         $tpl_products = $this->template->create('IntrafacePublic/Shop/templates/keyword-products');
