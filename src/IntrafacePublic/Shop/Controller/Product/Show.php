@@ -22,7 +22,7 @@ class IntrafacePublic_Shop_Controller_Product_Show extends IntrafacePublic_Contr
     {
         $result = $this->getProduct();
         if ($result['product']['id'] == 0) {
-            return new k_PageNotFound();
+            throw new k_PageNotFound();
         }
         return parent::dispatch();
     }
@@ -36,16 +36,14 @@ class IntrafacePublic_Shop_Controller_Product_Show extends IntrafacePublic_Contr
         return $tpl->render($this, $this->getProductDataArray($result));
     }
 
-    public function POST()
+    public function postForm()
     {
-        if (isset($this->POST['select_variation'])) {
-
-            if (isset($this->POST['attribute']) && is_array($this->POST['attribute']) && count($this->POST['attribute']) > 0) {
-                throw new k_http_Redirect($this->url('./'.implode('-', $this->POST['attribute'])));
+        if ($this->body('select_variation')) {
+            if ($this->body('attribute') && is_array($this->body('attribute')) && count($this->body('attribute')) > 0) {
+                throw new k_SeeOther($this->url('./'.implode('-', $this->body('attribute'))));
             }
-
-            return $this->GET();
         }
+        return $this->render();
     }
 
     public function getShop()
