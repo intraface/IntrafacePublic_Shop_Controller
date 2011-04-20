@@ -6,59 +6,50 @@ require_once 'Ilib/ClassLoader.php';
 
 class EnglishLanguage implements k_Language
 {
-  function name()
-  {
-    return 'English';
-  }
+    function name()
+    {
+        return 'English';
+    }
 
-  function isoCode()
-  {
-    return 'en';
-  }
+    function isoCode()
+    {
+        return 'en';
+    }
 }
 
 class MyLanguageLoader implements k_LanguageLoader
 {
-  function load(k_Context $context)
-  {
-    if($context->query('lang') == 'en') {
-      return new EnglishLanguage();
+    function load(k_Context $context)
+    {
+        if ($context->query('lang') == 'en') {
+            return new EnglishLanguage();
+        }
+        return new EnglishLanguage();
     }
-    return new EnglishLanguage();
-  }
 }
 
 class SimpleTranslator implements k_Translator
 {
-  protected $phrases;
+    protected $phrases;
 
-  function __construct($phrases = array())
-  {
-    $this->phrases = $phrases;
-  }
+    function __construct($phrases = array())
+    {
+        $this->phrases = $phrases;
+    }
 
-  function translate($phrase, k_Language $language = null)
-  {
-    return isset($this->phrases[$phrase]) ? $this->phrases[$phrase] : $phrase;
-  }
+    function translate($phrase, k_Language $language = null)
+    {
+        return isset($this->phrases[$phrase]) ? $this->phrases[$phrase] : $phrase;
+    }
 }
 
 class SimpleTranslatorLoader implements k_TranslatorLoader
 {
-  function load(k_Context $context) {
-    // Default to English
-    $phrases = array(
-      'Hello' => 'Hello',
-      'Meatballs' => 'Meatballs',
-    );
-    if($context->language()->isoCode() == 'sv') {
-      $phrases = array(
-        'Hello' => 'Bork, bork, bork!',
-        'Meatballs' => 'Swedish meatballs',
-      );
+    function load(k_Context $context)
+    {
+        $phrases = array();
+        return new SimpleTranslator($phrases);
     }
-    return new SimpleTranslator($phrases);
-  }
 }
 
 class Intraface_TemplateFactory extends k_DefaultTemplateFactory
@@ -83,11 +74,11 @@ class Factory
 
     function new_IntrafacePublic_Shop_Client_XMLRPC()
     {
-         $session_id = session_id();
-         $options = array("private_key" => INTRAFACE_PRIVATE_KEY,
+        $session_id = session_id();
+        $options = array("private_key" => INTRAFACE_PRIVATE_KEY,
                           "session_id" => md5($session_id));
-         $debug = false;
-         return new IntrafacePublic_Shop_Client_XMLRPC($options, SITE_ID, $debug);
+        $debug = false;
+        return new IntrafacePublic_Shop_Client_XMLRPC($options, SITE_ID, $debug);
     }
 
     function new_Cache_Lite()
@@ -96,8 +87,8 @@ class Factory
            "cacheDir" => dirname(__FILE__) . "/",
            "lifeTime" => 3600,
            "pearErrorMode" => CACHE_LITE_ERROR_DIE
-       );
-       return new Cache_Lite($options);
+        );
+        return new Cache_Lite($options);
     }
 
     function new_k_TemplateFactory()
