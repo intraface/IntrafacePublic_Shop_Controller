@@ -1,3 +1,4 @@
 .settings/*
 .project
 .buildpath
+example/www/config.local.php
