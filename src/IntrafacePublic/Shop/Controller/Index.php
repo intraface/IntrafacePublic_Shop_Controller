@@ -1,26 +1,15 @@
 <?php
 class IntrafacePublic_Shop_Controller_Index extends k_Component
 {
-    public $map = array('products' => 'IntrafacePublic_Shop_Controller_Products',
-                        'product' => 'IntrafacePublic_Shop_Controller_Product',
-                        'basket'   => 'IntrafacePublic_Shop_Controller_Basket',
-                        'catalogue' => 'IntrafacePublic_Shop_Controller_Catalogue',
-                        'keyword' => 'IntrafacePublic_Shop_Controller_Keyword');
+    public $map = array(
+        'products' => 'IntrafacePublic_Shop_Controller_Products',
+        'product' => 'IntrafacePublic_Shop_Controller_Product',
+        'basket'   => 'IntrafacePublic_Shop_Controller_Basket',
+        'catalogue' => 'IntrafacePublic_Shop_Controller_Catalogue',
+        'keyword' => 'IntrafacePublic_Shop_Controller_Keyword');
 
-    private $categories;
-    private $currency;
-
-    /*
-    public function __construct($context, $name)
-    {
-        parent::__construct($context, $name);
-        $this->document->menu = $this->render('IntrafacePublic/Shop/templates/menu-categories-tpl.php', array('url_root' => $this->url('.'), 'categories' => $this->getCategories()));
-
-        # We set locale to en_US as default.
-        if (empty($this->document->locale)) $this->document->locale = 'en_US';
-    }
-    */
-
+    protected $categories;
+    protected $currency;
     protected $shop;
     protected $template;
 
@@ -38,6 +27,11 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
         return $this->map[$name];
     }
 
+    function execute()
+    {
+        return $this->wrap(parent::execute());
+    }
+
     function wrapHtml($content)
     {
         $tpl = $this->template->create('IntrafacePublic/Shop/templates/menu-categories');
@@ -53,9 +47,7 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
 
         if ($this->query('update_all')) {
             $this->getShop()->clearCache();
-        }
-
-        if ($this->query('update')) {
+        } elseif ($this->query('update')) {
             $this->getShop()->clearFeaturedProductsCache();
         }
         $result = $this->getShop()->getFeaturedProducts();
@@ -131,13 +123,14 @@ class IntrafacePublic_Shop_Controller_Index extends k_Component
         return $this->categories;
     }
 
+    /**
+     * The possibility to change between currencies.
+     */
     function getCurrency()
     {
         if (!$this->currency) {
             $this->currency = $this->getShop()->getCurrency();
         }
-
-        // The possibility to change between currencies.
 
         return $this->currency['default'];
     }

@@ -66,14 +66,12 @@ class IntrafacePublic_Shop_Controller_Products extends IntrafacePublic_Controlle
         return $tpl_products->render($this)
             . $tpl_search->render($this, array('search' => $this->getSearch()))
             . $products_html . $tpl_paging->render($this, $products);
-
     }
 
     function getSearch()
     {
         return $this->query('q');
     }
-
 
     function getShop()
     {
@@ -93,7 +91,6 @@ class IntrafacePublic_Shop_Controller_Products extends IntrafacePublic_Controlle
     function numberOfProductsPerPage()
     {
         if (is_callable(array($this->context, 'numberOfProductsPerPage'))) {
-
             return $this->context->numberOfProductsPerPage();
         }
 
