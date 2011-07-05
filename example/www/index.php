@@ -75,18 +75,18 @@ class Factory
     function new_IntrafacePublic_Shop_Client_XMLRPC()
     {
         $session_id = session_id();
-        $options = array("private_key" => INTRAFACE_PRIVATE_KEY,
-                          "session_id" => md5($session_id));
+        $options = array(
+            "private_key" => $GLOBALS['intraface_private_key'],
+            "session_id" => md5($session_id));
         $debug = false;
-        return new IntrafacePublic_Shop_Client_XMLRPC($options, SITE_ID, $debug);
+        return new IntrafacePublic_Shop_Client_XMLRPC($options, $GLOBALS['intraface_shop_id'], $debug);
     }
 
     function new_Cache_Lite()
     {
         $options = array(
            "cacheDir" => dirname(__FILE__) . "/",
-           "lifeTime" => 3600,
-           "pearErrorMode" => CACHE_LITE_ERROR_DIE
+           "lifeTime" => 3600
         );
         return new Cache_Lite($options);
     }
